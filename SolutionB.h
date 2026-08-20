@@ -1,17 +1,15 @@
-#ifndef SOLUTION_B_H
-#define SOLUTION_B_H
+#ifndef SOLUTIONB_H
+#define SOLUTIONB_H
 
 #include <string>
 
-using namespace std;
-
-void addProduct(string*& productNames, double*& productPrices, int*& productStock, int& productCount, string name, double price, int stock);
-int findProduct(string* productNames, int productCount, string name);
+int findProduct(std::string* productNames, int productCount, std::string name);
+void addProduct(std::string*& productNames, double*& productPrices, int*& productStock, int& productCount, std::string name, double price, int qty);
+void removeProduct(std::string*& productNames, double*& productPrices, int*& productStock, int& productCount, std::string name);
 void updateStock(int* productStock, int index, int newQty);
 void priceMinMax(double* productPrices, int productCount, double* minPrice, double* maxPrice);
-void salesMatrix(int productCount);
-void showInventory(string* productNames, double* productPrices, int* productStock, int productCount);
-void freeAll(string*& productNames, double*& productPrices, int*& productStock, int& productCount);
-void removeProduct(string*& productNames, double*& productPrices, int*& productStock, int& productCount, string name);
+void salesMatrix(int** sales, int productCount);
+void showInventory(std::string* productNames, double* productPrices, int* productStock, int productCount);
+void freeAll(std::string* productNames, double* productPrices, int* productStock);
 
 #endif

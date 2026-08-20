@@ -5,65 +5,89 @@
 
 using namespace std;
 
-void agregarProducto(string*& productos, int*& stock, int& tam, const string& nuevaProd, int nuevoStock);
-int buscarProducto(const string* productos, int tam, const string& nombre);
-void mostrarInventario(const string* productos, const int* stock, int tam);
-
 int main() {
+    string* productNames = nullptr;
+    double* productPrices = nullptr;
+    int* productStock = nullptr;
+    int productCount = 0;
+
     int option = 0;
 
-    int tam = 0;
-    string* productos = nullptr;
-    int* stock = nullptr;
-
     do {
-        cout << "\nMENU DE OPCIONES" << endl;
-        cout << "1. Probar Ejercicio 1 (Arreglo 1D)" << endl;
-        cout << "2. Probar Ejercicio 2 (Matriz 2D)" << endl;
-        cout << "3. Agregar producto al inventario" << endl;
-        cout << "4. Buscar producto" << endl;
-        cout << "5. Mostrar inventario" << endl;
-        cout << "6. Salir" << endl;
+        cout << "\nGestor de Inventario" << endl;
+        cout << "1. Agregar producto" << endl;
+        cout << "2. Buscar producto" << endl;
+        cout << "3. Eliminar producto" << endl;
+        cout << "4. Actualizar stock" << endl;
+        cout << "5. Ver precio minimo y maximo" << endl;
+        cout << "6. Matriz de ventas" << endl;
+        cout << "7. Mostrar inventario" << endl;
+        cout << "8. Salir" << endl;
         cout << "Seleccione una opcion: ";
         cin >> option;
 
         if (option == 1) {
-            int size = 5;
-            int* arr = new int[size] {2, 8, 4, 10, 6};
-            int minVal = 0, maxVal = 0;
-
-            findMinMax(arr, size, &minVal, &maxVal);
-            cout << "Minimo: " << minVal << " | Maximo: " << maxVal << endl;
-
-            delete[] arr;
-        }
-        else if (option == 2) {
-            fillAndPrint(3);
-        }
-        else if (option == 3) {
-            string nombre;
-            int cantidad;
+            string name;
+            double price;
+            int qty;
 
             cout << "Nombre del producto: ";
-            cin >> nombre;
+            cin >> name;
+            cout << "Precio del producto: ";
+            cin >> price;
             cout << "Cantidad de stock: ";
-            cin >> cantidad;
+            cin >> qty;
 
-            agregarProducto(productos, stock, tam, nombre, cantidad);
-            cout << "Producto agregado correctamente." << endl;
+            addProduct(productNames, productPrices, productStock, productCount, name, price, qty);
+            cout << "Producto registrado con exito." << endl;
         }
-        else if (option == 4) {
-            if (tam == 0) {
+        else if (option == 2) {
+            if (productCount == 0) {
                 cout << "El inventario esta vacio." << endl;
             }
             else {
-                string nombre;
-                cout << "Ingrese el nombre a buscar: ";
-                cin >> nombre;
+                string name;
+                cout << "Nombre del producto a buscar: ";
+                cin >> name;
 
-                int pos = buscarProducto(productos, tam, nombre);
-                if (pos != -1) {
-                    cout << "Producto encontrado en el indice " << pos << " con stock de " << *(stock + pos) << endl;
+                int idx = findProduct(productNames, productCount, name);
+                if (idx != -1) {
+                    cout << "Encontrado en indice [" << idx << "]"
+                        << " | Precio: $" << *(productPrices + idx)
+                        << " | Stock: " << *(productStock + idx) << endl;
+                }
+                else {
+                    cout << "Producto no encontrado." << endl;
+                }
+            }
+        }
+        else if (option == 3) {
+            if (productCount == 0) {
+                cout << "El inventario esta vacio." << endl;
+            }
+            else {
+                string name;
+                cout << "Nombre del producto a eliminar: ";
+                cin >> name;
+                removeProduct(productNames, productPrices, productStock, productCount, name);
+            }
+        }
+        else if (option == 4) {
+            if (productCount == 0) {
+                cout << "El inventario esta vacio." << endl;
+            }
+            else {
+                string name;
+                cout << "Nombre del producto a actualizar: ";
+                cin >> name;
+
+                int idx = findProduct(productNames, productCount, name);
+                if (idx != -1) {
+                    int newQty;
+                    cout << "Nuevo stock: ";
+                    cin >> newQty;
+                    updateStock(productStock, idx, newQty);
+                    cout << "Stock actualizado correctamente." << endl;
                 }
                 else {
                     cout << "Producto no encontrado." << endl;
@@ -71,19 +95,48 @@ int main() {
             }
         }
         else if (option == 5) {
-            if (tam == 0) {
+            if (productCount == 0) {
                 cout << "El inventario esta vacio." << endl;
             }
             else {
-                mostrarInventario(productos, stock, tam);
+                double minP = 0.0, maxP = 0.0;
+                priceMinMax(productPrices, productCount, &minP, &maxP);
+                cout << "Precio Minimo: $" << minP << " | Precio Maximo: $" << maxP << endl;
+            }
+        }
+        else if (option == 6) {
+            if (productCount == 0) {
+                cout << "Registre productos primero para generar la matriz de ventas." << endl;
+            }
+            else {
+                int** sales = new int* [7];
+                for (int i = 0; i < 7; i++) {
+                    *(sales + i) = new int[productCount];
+                    for (int j = 0; j < productCount; j++) {
+                        *(*(sales + i) + j) = (i + 1) * 2;
+                    }
+                }
+
+                salesMatrix(sales, productCount);
+
+                for (int i = 0; i < 7; i++) {
+                    delete[] * (sales + i);
+                }
+                delete[] sales;
+            }
+        }
+        else if (option == 7) {
+            if (productCount == 0) {
+                cout << "El inventario esta vacio." << endl;
+            }
+            else {
+                showInventory(productNames, productPrices, productStock, productCount);
             }
         }
 
-    } while (option != 6);
+    } while (option != 8);
 
-    delete[] productos;
-    delete[] stock;
-
-    cout << "Programa finalizado." << endl;
+    freeAll(productNames, productPrices, productStock);
+    cout << "Memoria liberada correctamente. Programa finalizado." << endl;
     return 0;
 }
